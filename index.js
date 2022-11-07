@@ -29,6 +29,12 @@ const run = async()=> {
 
         // ! Getting data from database
         app.get('/products',async(req,res)=> {
+
+            // Taking query  request
+            const page = parseInt(req.query.page);
+            const size = parseInt(req.query.size);
+
+            console.log(page,size)
             // query all data give me
             const query = {};
 
@@ -36,13 +42,17 @@ const run = async()=> {
             const cursor = await database.find(query);
 
             // Converting data into array to use it.
-            const products = await cursor.toArray();
+            const products = await cursor.skip(page*size).limit(size).toArray();
+
+
+            // Counting total products 
+            const count = await database.estimatedDocumentCount();
 
 
             // Returning data to requester.
-            res.send(products);
+            res.send({count,products});
 
-
+ 
         })
 
 
